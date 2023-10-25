@@ -243,9 +243,9 @@ bin/hadoop jaomework 5-1.0-SNAPSHOT.jar com.hw5.homework5 /user/homework/home/ha
 
 执行结果如下：
 
-![51fd19a7cf02d87f8f4461d77052bb6](https://github.com/Maroon1989/Finance_big_data/blob/master/hw5/png/305be12bbb20b568d8a74117d61bb6a.png)
+![51fd19a7cf02d87f8f4461d77052bb6](https://github.com/Maroon1989/Finance_big_data/blob/master/hw5/png/51fd19a7cf02d87f8f4461d77052bb6.png)
 
-![150869e8fb47e2d825a9f201e66246b](https://github.com/Maroon1989/Finance_big_data/blob/master/hw5/png/51fd19a7cf02d87f8f4461d77052bb6.png)
+![150869e8fb47e2d825a9f201e66246b](https://github.com/Maroon1989/Finance_big_data/blob/master/hw5/png/150869e8fb47e2d825a9f201e66246b.png)
 
 然后执行代码get把output拷贝到本地文件系统上：
 
