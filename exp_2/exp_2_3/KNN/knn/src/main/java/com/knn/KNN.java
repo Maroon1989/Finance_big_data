@@ -30,8 +30,12 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+
+import com.knn.KNN.KNNMap;
+
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+
 
 public class KNN {
 	public static class KNNMap extends Mapper<LongWritable,
@@ -42,30 +46,21 @@ public class KNN {
 		@Override
 		protected void setup(Context context) throws IOException,InterruptedException{
 			k = context.getConfiguration().getInt("k", 1);
-			trainSet = new ArrayList<Instance>();
-			Configuration conf = context.getConfiguration();
-			String trainFolderPath = conf.get("trainFolder");
-			Path trainFolder = new Path(trainFolderPath);
-
-			// 读取训练集文件夹下的所有文件
-			FileSystem fs = FileSystem.get(conf);
-			FileStatus[] fileStatuses = fs.listStatus(trainFolder);
-			BufferedReader br=null;
-			for (FileStatus fileStatus : fileStatuses) {
-				if (!fileStatus.isDirectory()) {
-					try {
-						br = new BufferedReader(new InputStreamReader(fs.open(fileStatus.getPath())));
-						String line;
-						while ((line = br.readLine()) != null) {
-							Instance trainInstance = new Instance(line);
-							trainSet.add(trainInstance);
-						}
-						br.close();
-					} catch(FileNotFoundException e) {
-						throw new RuntimeException("文件未找到: " + e.getMessage());
+            trainSet = new ArrayList<Instance>();
+			String trainFilePath = context.getConfiguration().get("trainFile");
+            Path trainFile = new Path(trainFilePath);
+            FileSystem fs = FileSystem.get(context.getConfiguration());
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fs.open(trainFile)));
+            String instanceLine;
+            while ((instanceLine = bufferedReader.readLine()) != null) {
+                Instance trainInstance = new Instance(instanceLine);
+                trainSet.add(trainInstance);
+            }
+            bufferedReader.close();
 					}
-				}
-    		}
+					
+				
+    		
 			// Path[] trainFile = 
 
             // Job job = Job.getInstance(context.getConfiguration());
@@ -80,7 +75,7 @@ public class KNN {
 			// 		trainSet.add(trainInstance);
 			// 	}
 			// }
-		} 
+		
 		
 	
 		@Override
@@ -96,13 +91,13 @@ public class KNN {
 			Instance testInstance = new Instance(textLine.toString());
 			for(int i = 0;i < trainSet.size();i++){
 				try {
-					double dis = Distance.EuclideanDistance(trainSet.get(i).getAtrributeValue(), testInstance.getAtrributeValue());
+					double dis = Distance.EuclideanDistance(trainSet.get(i).getAttributeValue(), testInstance.getAttributeValue());
 					int index = indexOfMax(distance);
 					if(dis < distance.get(index)){
 						distance.remove(index);
 					    trainLable.remove(index);
 					    distance.add(dis);
-					    trainLable.add(new DoubleWritable(trainSet.get(i).getLable()));
+					    trainLable.add(new DoubleWritable(trainSet.get(i).getLabel()));
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -124,6 +119,7 @@ public class KNN {
 			return index;
 		}
 	}
+
 	
 	public static class KNNReduce extends Reducer<LongWritable,ListWritable<DoubleWritable>,NullWritable,DoubleWritable>{
 		
